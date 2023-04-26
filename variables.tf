@@ -4,12 +4,12 @@
 # }
 
 variable "az-resource-group" {
-  type = string
-  default = "1-ef016595-playground-sandbox"
+  type    = string
+  default = "1-8400d1ca-playground-sandbox"
 }
 
 variable "location" {
-    type = string
+  type    = string
   default = "East US"
 }
 

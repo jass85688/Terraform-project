@@ -13,26 +13,50 @@ resource "azurerm_virtual_network" "project_vnet" {
   location            = var.location
   resource_group_name = var.az-resource-group
 
+
 }
 // subnet 1 for frontend
-  resource "azurem_subnet" "frontend-subnet" {
-    name           = "frontend-subnet"
-    address_prefix = "10.0.1.0/24"
-    resource_group_name = var.az-resource-group
-    virtual_network_name = azurem_virtual_network.project_vnet.name
-  }
+resource "azurerm_subnet" "frontend-subnet" {
+  name                 = "frontend-subnet"
+  address_prefixes     = ["10.0.1.0/24"]
+  resource_group_name  = var.az-resource-group
+  virtual_network_name = azurerm_virtual_network.project_vnet.name
+}
 
 // subnet 2 for backend
-#   subnet {
-#     name           = "backend-subnet"
-#     address_prefix = "10.0.2.0/24"
-#   }
+resource "azurerm_subnet" "backend-subnet" {
+  name                 = "backend-subnet"
+  address_prefixes     = ["10.0.1.0/24"]
+  resource_group_name  = var.az-resource-group
+  virtual_network_name = azurerm_virtual_network.project_vnet.name
+}
 
 # // subnet 3 for middle
-#   subnet {
-#     name           = "middle-subnet"
-#     address_prefix = "10.0.3.0/24"
-#   }
+resource "azurerm_subnet" "middle-subnet" {
+  name                 = "middle-subnet"
+  address_prefixes     = ["10.0.1.0/24"]
+  resource_group_name  = var.az-resource-group
+  virtual_network_name = azurerm_virtual_network.project_vnet.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "subnet1_nsg_association" {
+  subnet_id                 = azurerm_subnet.frontend-subnet.id
+  network_security_group_id = azurerm_network_security_group.project-security-group.id
+}
+
+
+
+resource "azurerm_subnet_network_security_group_association" "subnet2_nsg_association" {
+  subnet_id                 = azurerm_subnet.middle-subnet.id
+  network_security_group_id = azurerm_network_security_group.project-security-group.id
+}
+
+
+
+resource "azurerm_subnet_network_security_group_association" "subnet3_nsg_association" {
+  subnet_id                 = azurerm_subnet.backend-subnet.id
+  network_security_group_id = azurerm_network_security_group.project-security-group.id
+}
 
 // public ip
 resource "azurerm_public_ip" "project-public-ip" {
@@ -54,7 +78,7 @@ resource "azurerm_lb" "project-lb" {
     private_ip_address_allocation = "Dynamic"
   }
 
-  
+
 }
 
 //The load balancer rule block creates a new rule named "example-rule" that connects the frontend IP configuration and backend address pool to port 80 using TCP.
@@ -70,22 +94,34 @@ resource "azurerm_lb" "project-lb" {
 
 //Storage account
 resource "azurerm_storage_account" "project-storage-acc" {
-  name                     = "projectstorageacc1996"
-  location            = var.location
-  resource_group_name = var.az-resource-group
+  name                     = "projectstorageacc199601"
+  location                 = var.location
+  resource_group_name      = var.az-resource-group
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  
+
 }
 
+//interface
+# resource "azurerm_network_interface" "project-interface1" {
+#   name                = "project-interface1"
+#   location            = var.location
+#   resource_group_name = var.az-resource-group
+
+#   ip_configuration {
+#     name                          = "testconfiguration1"
+#     subnet_id                     = azurerm_subnet.frontend-subnet.id
+#     private_ip_address_allocation = "Dynamic"
+#   }
+# }
 
 // virtual machine
 
 resource "azurerm_virtual_machine" "project-vm" {
   name                  = "project-vm"
-  location            = var.location
-  resource_group_name = var.az-resource-group
-  network_interface_ids = [azurerm_network_interface.project-interface1.id]
+  location              = var.location
+  resource_group_name   = var.az-resource-group
+  network_interface_ids = azurerm_network_interface.project-nic.*.id
   vm_size               = "Standard_DS1_v2"
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
