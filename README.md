@@ -47,6 +47,6 @@ The process is codefied with Terraform, essentially automating the process of de
 
 ## Links
 
-To learn more about <b>Terraform</b> check out the here the: [Terraform Site](https://www.terraform.io/)
+To learn more about <b>Terraform</b> check out the: [Terraform Site](https://www.terraform.io/)
 
 To learn more about <b>Azure Cloud</b> check out the [Azure Cloud Site](https://azure.microsoft.com/).
