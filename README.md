@@ -35,11 +35,13 @@ The process is codefied with Terraform, essentially automating the process of de
 - Information related to the environment variables used to modularize code (string values for the resource group and location provided)
 
 #### `virtual-machines.tf`
-- Code for provisioning additional resources:
 <ul>
-    <li><b>Azure Availability Set</b> (name, location, resource group, managed)</li>
-    <li><b>Azure Network Interface</b> (name, location, resource group, and information related to IP configuration)</li>
-    <li><b>Azure Storage Container</b> (name, storage account name, container access type)</li>
+    <li>Code for provisioning additional resources:</li>
+    <ul>
+        <li><b>Azure Availability Set</b> (name, location, resource group, managed)</li>
+        <li><b>Azure Network Interface</b> (name, location, resource group, and information related to IP configuration)</li>
+        <li><b>Azure Storage Container</b> (name, storage account name, container access type)</li>
+    </ul>
 </ul>
 
 #### More details will be added as the project completes.
