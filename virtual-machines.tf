@@ -32,18 +32,50 @@ resource "azurerm_storage_container" "backend-container" {
 }
 
 //network interface card
-resource "azurerm_network_interface" "project-nic" {
-  count               = 3
-  name                = "project-nic-${count.index + 1}"
+resource "azurerm_network_interface" "project-nic-1" {
+  # count               = 2
+  name                = "project-nic-1"
   location            = var.location
   resource_group_name = var.az-resource-group
 
   ip_configuration {
-    name                          = "nic-ip-config-${count.index}"
-    subnet_id                     = element([azurerm_subnet.frontend-subnet.id, azurerm_subnet.middle-subnet.id, azurerm_subnet.backend-subnet.id], count.index)
+    name                          = "project-ipconfig-1"
+    subnet_id                     = azurerm_subnet.frontend-subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.project-public-ip.id
+    primary = true
+    
   }
 
+ 
+
+  
   # network_security_group_id = azurerm_network_security_group.project-security-group.id
 }
+
+resource "azurerm_network_interface" "project-nic-2" {
+  # count               = 2
+  name                = "project-nic-2"
+  location            = var.location
+  resource_group_name = var.az-resource-group
+
+  ip_configuration {
+    name                          = "project-ipconfig-2"
+    subnet_id                     = azurerm_subnet.backend-subnet.id
+    private_ip_address_allocation = "Dynamic"
+    
+  }
+
+ 
+
+  
+  # network_security_group_id = azurerm_network_security_group.project-security-group.id
+}
+  resource "azurerm_managed_disk" "project-managed-disk" {
+   
+   name                 = "project-managed-disk"
+   location             = var.location
+   resource_group_name  = var.az-resource-group
+   storage_account_type = "Standard_LRS"
+   create_option        = "Empty"
+   disk_size_gb         = "1023"
+ }

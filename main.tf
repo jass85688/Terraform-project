@@ -26,30 +26,24 @@ resource "azurerm_subnet" "frontend-subnet" {
 // subnet 2 for backend
 resource "azurerm_subnet" "backend-subnet" {
   name                 = "backend-subnet"
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes     = ["10.0.2.0/24"]
   resource_group_name  = var.az-resource-group
   virtual_network_name = azurerm_virtual_network.project_vnet.name
 }
 
-# // subnet 3 for middle
-resource "azurerm_subnet" "middle-subnet" {
-  name                 = "middle-subnet"
-  address_prefixes     = ["10.0.1.0/24"]
-  resource_group_name  = var.az-resource-group
-  virtual_network_name = azurerm_virtual_network.project_vnet.name
-}
+# # // subnet 3 for middle
+# resource "azurerm_subnet" "middle-subnet" {
+#   name                 = "middle-subnet"
+#   address_prefixes     = ["10.0.3.0/24"]
+#   resource_group_name  = var.az-resource-group
+#   virtual_network_name = azurerm_virtual_network.project_vnet.name
+# }
 
 resource "azurerm_subnet_network_security_group_association" "subnet1_nsg_association" {
   subnet_id                 = azurerm_subnet.frontend-subnet.id
   network_security_group_id = azurerm_network_security_group.project-security-group.id
 }
 
-
-
-resource "azurerm_subnet_network_security_group_association" "subnet2_nsg_association" {
-  subnet_id                 = azurerm_subnet.middle-subnet.id
-  network_security_group_id = azurerm_network_security_group.project-security-group.id
-}
 
 
 
@@ -59,6 +53,13 @@ resource "azurerm_subnet_network_security_group_association" "subnet3_nsg_associ
 }
 
 // public ip
+resource "azurerm_public_ip" "project-public-ip-nic" {
+  name                = "project-public-ip-nic"
+  location            = var.location
+  resource_group_name = var.az-resource-group
+  allocation_method   = "Static"
+}
+
 resource "azurerm_public_ip" "project-public-ip" {
   name                = "project-public-ip"
   location            = var.location
@@ -121,14 +122,31 @@ resource "azurerm_virtual_machine" "project-vm" {
   name                  = "project-vm"
   location              = var.location
   resource_group_name   = var.az-resource-group
-  network_interface_ids = azurerm_network_interface.project-nic.*.id
-  vm_size               = "Standard_DS1_v2"
+  network_interface_ids = [azurerm_network_interface.project-nic-1.id, azurerm_network_interface.project-nic-2.id]
+  vm_size               = "Standard_D2s_v3"
+  primary_network_interface_id = azurerm_network_interface.project-nic-1.id
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
   # delete_os_disk_on_termination = true
 
   # Uncomment this line to delete the data disks automatically when deleting the VM
   # delete_data_disks_on_termination = true
+
+  #   storage_data_disk {
+  #    name              = "datadisk_new_${count.index}"
+  #    managed_disk_type = "Standard_LRS"
+  #    create_option     = "Empty"
+  #    lun               = 0
+  #    disk_size_gb      = "1023"
+  #  }
+
+   storage_data_disk {
+     name            = azurerm_managed_disk.project-managed-disk.name
+     managed_disk_id = azurerm_managed_disk.project-managed-disk.id
+     create_option   = "Attach"
+     lun             = 1
+     disk_size_gb    = azurerm_managed_disk.project-managed-disk.disk_size_gb
+   }
 
   storage_image_reference {
     publisher = "Canonical"

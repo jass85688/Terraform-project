@@ -5,7 +5,7 @@
 
 variable "az-resource-group" {
   type    = string
-  default = "1-8400d1ca-playground-sandbox"
+  default = "1-2b8c0be9-playground-sandbox"
 }
 
 variable "location" {
