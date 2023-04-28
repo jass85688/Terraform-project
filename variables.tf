@@ -1,31 +1,23 @@
-# variable "aws_usernames" {
-#   type = list(string)
-#   default = ["Jaspal","Harsimran","Jaldeep","Afsah"]
-# }
-
+# variable for resource group name
 variable "az-resource-group" {
   type    = string
-  default = "1-2b8c0be9-playground-sandbox"
+  default = "1-d3fe58fe-playground-sandbox"
 }
 
+# variable for location
 variable "location" {
   type    = string
-  default = "East US"
+  default = "South Central US"
 }
 
-# variable "subnet1-id" {
-#   default = azurerm_virtual_network.project_vnet.frontend-subnet.id
-# }
-# variable "s3_bucket_names" {
-#   type = list
-#   default = ["bucket1.app", "bucket2.app"]
-# }
+# variable for availability set name
+variable "availability-set" {
+  type    = string
+  default = "project-vm-as"
+}
 
-# variable "prefix" {
-#   default = "jass1234"
-# }
-
-# variable "storage_acc_name" {
-#   type = string
-#   default = "jaspalstorageacc1"
-# }
+# variable for storage account name
+variable "storage-account-name" {
+  type    = string
+  default = "projectstorageacc199601"
+}

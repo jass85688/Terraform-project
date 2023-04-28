@@ -4,8 +4,6 @@
 #   location = "eastus"
 # }
 
-
-
 //Virtual network
 resource "azurerm_virtual_network" "project_vnet" {
   name                = "project_vnet"
@@ -31,28 +29,18 @@ resource "azurerm_subnet" "backend-subnet" {
   virtual_network_name = azurerm_virtual_network.project_vnet.name
 }
 
-# # // subnet 3 for middle
-# resource "azurerm_subnet" "middle-subnet" {
-#   name                 = "middle-subnet"
-#   address_prefixes     = ["10.0.3.0/24"]
-#   resource_group_name  = var.az-resource-group
-#   virtual_network_name = azurerm_virtual_network.project_vnet.name
-# }
-
+# This block connects a subnet to a network security group
 resource "azurerm_subnet_network_security_group_association" "subnet1_nsg_association" {
   subnet_id                 = azurerm_subnet.frontend-subnet.id
   network_security_group_id = azurerm_network_security_group.project-security-group.id
 }
-
-
-
 
 resource "azurerm_subnet_network_security_group_association" "subnet3_nsg_association" {
   subnet_id                 = azurerm_subnet.backend-subnet.id
   network_security_group_id = azurerm_network_security_group.project-security-group.id
 }
 
-// public ip
+// To create a public ip for network interface
 resource "azurerm_public_ip" "project-public-ip-nic" {
   name                = "project-public-ip-nic"
   location            = var.location
@@ -60,6 +48,7 @@ resource "azurerm_public_ip" "project-public-ip-nic" {
   allocation_method   = "Static"
 }
 
+# To create a public ip for load balancer
 resource "azurerm_public_ip" "project-public-ip" {
   name                = "project-public-ip"
   location            = var.location
@@ -82,20 +71,50 @@ resource "azurerm_lb" "project-lb" {
 
 }
 
-//The load balancer rule block creates a new rule named "example-rule" that connects the frontend IP configuration and backend address pool to port 80 using TCP.
+# To create backend address pool to route request to backend server
+resource "azurerm_lb_backend_address_pool" "project-backend-pool" {
+  loadbalancer_id = azurerm_lb.project-lb.id
+  name            = "BackEndAddressPool"
+}
 
-# resource "azurerm_lb_rule" "example" {
-#   name                   = "project-lb-rule"
-#   protocol               = "Tcp"
-#   # frontend_ip_configuration_id = azurerm_lb.project-lb.project-frontend-ip.id
-# #   backend_address_pool_id       = azurerm_lb.project-lb.backend_address_pool[0].id
-#   frontend_port          = 80
-#   backend_port           = 80
-# }
+resource "azurerm_network_interface_backend_address_pool_association" "association1" {
+  network_interface_id    = azurerm_network_interface.project-nic-1.id
+  ip_configuration_name   = "project-ipconfig-1"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.project-backend-pool.id
+
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "association2" {
+  network_interface_id    = azurerm_network_interface.project-nic-2.id
+  ip_configuration_name   = "project-ipconfig-2"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.project-backend-pool.id
+
+}
+
+//The load balancer rule block creates "project-lb" that connects the frontend IP configuration and backend address pool.
+
+
+
+resource "azurerm_lb_rule" "project-lb-rule" {
+  loadbalancer_id                = azurerm_lb.project-lb.id
+  name                           = "LBRule"
+  protocol                       = "Tcp"
+  frontend_port                  = 3389
+  backend_port                   = 3389
+  frontend_ip_configuration_name = "project-frontend-ip"
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.project-backend-pool.id]
+  probe_id                       = azurerm_lb_probe.project-probe.id
+}
+
+resource "azurerm_lb_probe" "project-probe" {
+  loadbalancer_id = azurerm_lb.project-lb.id
+  name            = "ssh-running-probe"
+  port            = 22
+}
 
 //Storage account
 resource "azurerm_storage_account" "project-storage-acc" {
-  name                     = "projectstorageacc199601"
+  name                     = var.storage-account-name
   location                 = var.location
   resource_group_name      = var.az-resource-group
   account_tier             = "Standard"
@@ -103,50 +122,24 @@ resource "azurerm_storage_account" "project-storage-acc" {
 
 }
 
-//interface
-# resource "azurerm_network_interface" "project-interface1" {
-#   name                = "project-interface1"
-#   location            = var.location
-#   resource_group_name = var.az-resource-group
-
-#   ip_configuration {
-#     name                          = "testconfiguration1"
-#     subnet_id                     = azurerm_subnet.frontend-subnet.id
-#     private_ip_address_allocation = "Dynamic"
-#   }
-# }
-
 // virtual machine
 
 resource "azurerm_virtual_machine" "project-vm" {
-  name                  = "project-vm"
-  location              = var.location
-  resource_group_name   = var.az-resource-group
-  network_interface_ids = [azurerm_network_interface.project-nic-1.id, azurerm_network_interface.project-nic-2.id]
-  vm_size               = "Standard_D2s_v3"
+  name                         = "project-vm"
+  location                     = var.location
+  resource_group_name          = var.az-resource-group
+  network_interface_ids        = [azurerm_network_interface.project-nic-1.id, azurerm_network_interface.project-nic-2.id]
+  vm_size                      = "Standard_D2s_v3"
   primary_network_interface_id = azurerm_network_interface.project-nic-1.id
 
-  # Uncomment this line to delete the OS disk automatically when deleting the VM
-  # delete_os_disk_on_termination = true
 
-  # Uncomment this line to delete the data disks automatically when deleting the VM
-  # delete_data_disks_on_termination = true
-
-  #   storage_data_disk {
-  #    name              = "datadisk_new_${count.index}"
-  #    managed_disk_type = "Standard_LRS"
-  #    create_option     = "Empty"
-  #    lun               = 0
-  #    disk_size_gb      = "1023"
-  #  }
-
-   storage_data_disk {
-     name            = azurerm_managed_disk.project-managed-disk.name
-     managed_disk_id = azurerm_managed_disk.project-managed-disk.id
-     create_option   = "Attach"
-     lun             = 1
-     disk_size_gb    = azurerm_managed_disk.project-managed-disk.disk_size_gb
-   }
+  storage_data_disk {
+    name            = azurerm_managed_disk.project-managed-disk.name
+    managed_disk_id = azurerm_managed_disk.project-managed-disk.id
+    create_option   = "Attach"
+    lun             = 1
+    disk_size_gb    = azurerm_managed_disk.project-managed-disk.disk_size_gb
+  }
 
   storage_image_reference {
     publisher = "Canonical"
@@ -171,6 +164,7 @@ resource "azurerm_virtual_machine" "project-vm" {
   tags = {
     environment = "staging"
   }
+  availability_set_id = azurerm_availability_set.project-vm-as.id
 }
 
 
