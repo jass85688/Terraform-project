@@ -9,6 +9,12 @@ The project has several components. The main, being able to deploy Azure resourc
 
 The process is codefied with Terraform, essentially automating the process of deployment rather than manual deployment via Azure Portal.
 
+### Evidences ###
+
+- This folder contains screens of the Terraform deployment (Terraform apply command) as well as the Azure portal which is showcasing the deployed resources and information related to those deployed resources.
+
+<br />
+
 ### Components ###
 
 #### `backend.tf` ####
@@ -40,7 +46,6 @@ The process is codefied with Terraform, essentially automating the process of de
 #### `variables.tf`
 - Information related to the environment variables used to modularize code (string values for the resource group and location provided)
 <img src="/images/variables.png" height='250px' width='1000px' alt="Alt text" />
-
 
 #### `virtual-machines.tf`
 <ul>
