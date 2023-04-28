@@ -11,9 +11,7 @@ The process is codefied with Terraform, essentially automating the process of de
 
 ### Evidences ###
 
-- This folder contains screens of the Terraform deployment (Terraform apply command) as well as the Azure portal which is showcasing the deployed resources and information related to those deployed resources.
-
-<br />
+- This folder contains screens of the Terraform deployment (`terraform apply`) as well as the Azure portal which is showcasing the deployed resources and information related to those deployed resources.
 
 ### Components ###
 
