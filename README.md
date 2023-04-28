@@ -22,9 +22,9 @@ The process is codefied with Terraform, essentially automating the process of de
     <li>Code for setting up the main resources:</li>
     <ul>
         <li><b>Azure VM</b> (name, location, resource group, size, information related to the image, disk, and credentials for the profile to access)</li>
-        <img src="/images/main_3.png" height='250px' width='1000px' alt="Alt text" />
+        <img src="/images/main_3.png" height='250px' width='750px' alt="Alt text" />
         <li><b>Azure Storage Account</b> (name, location, resource group, data replication type, and account tier)</li>
-        <img src="/images/main_2.png" height='250px' width='1000px' alt="Alt text" />
+        <img src="/images/main_2.png" height='250px' width='750px' alt="Alt text" />
         <li><b>Azure Virtual Network</b> (name, location, address space, and resource group)</li>
         <li><b>Azure Subnet</b> (name, address-prefix, resource group, virtual network name)</li>
         <li><b>Azure Public IP Address</b> (name, location, resource group, allocation method)</li>
@@ -55,7 +55,7 @@ The process is codefied with Terraform, essentially automating the process of de
 
 <br />
 
-<img src="/images/vm_2.png" height='250px' width='1000px' alt="Alt text" />
+<img src="/images/vm_2.png" height='250px' width='750px' alt="Alt text" />
 
 <br />
 
