@@ -13,7 +13,9 @@ The process is codefied with Terraform, essentially automating the process of de
 
 #### `backend.tf` ####
 
-- Details to be added later
+- This file deals with the backend configuration for the Azure infrastructure. With values related the resource group name, storage account name, and key. The resource group name is the default playground value given when setting up accounts on Azure portal and subscriptions.
+
+<img src="/images/backend.png" height='250px' width='250px' alt="Alt text" />
 
 #### `main.tf` ####
 <ul>
